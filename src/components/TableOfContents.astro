@@ -1,0 +1,191 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+	headings: MarkdownHeading[];
+}
+
+// Built from the post's own #, ## and ### headings; the post title is rendered separately.
+const items = Astro.props.headings.filter((h) => h.depth <= 3);
+const minDepth = Math.min(...items.map((h) => h.depth));
+---
+
+{
+	items.length >= 2 && (
+		<>
+			<aside class="toc-side" aria-label="On this page">
+				<nav data-toc>
+					<svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+						<path d="M2.5 4h11M2.5 8h8M2.5 12h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+					</svg>
+					<ul>
+						{items.map((h) => (
+							<li class:list={[`depth-${h.depth - minDepth}`]}>
+								<a href={`#${h.slug}`}>{h.text}</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+			</aside>
+			<details class="toc-inline">
+				<summary aria-label="On this page">
+					<svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+						<path d="M2.5 4h11M2.5 8h8M2.5 12h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+					</svg>
+				</summary>
+				<nav data-toc>
+					<ul>
+						{items.map((h) => (
+							<li class:list={[`depth-${h.depth - minDepth}`]}>
+								<a href={`#${h.slug}`}>{h.text}</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+			</details>
+		</>
+	)
+}
+
+<script>
+	// Highlight the section currently being read.
+	const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc] a')];
+	const targets = [...new Set(links.map((a) => decodeURIComponent(a.hash.slice(1))))]
+		.map((id) => document.getElementById(id))
+		.filter((el): el is HTMLElement => el !== null);
+
+	if (targets.length) {
+		let queued = false;
+		const update = () => {
+			queued = false;
+			let current = targets[0];
+			for (const t of targets) {
+				if (t.getBoundingClientRect().top <= 120) current = t;
+				else break;
+			}
+			for (const a of links) a.classList.toggle('active', a.hash.slice(1) === encodeURIComponent(current.id));
+		};
+		addEventListener(
+			'scroll',
+			() => {
+				if (!queued) {
+					queued = true;
+					requestAnimationFrame(update);
+				}
+			},
+			{ passive: true },
+		);
+		update();
+	}
+</script>
+
+<style>
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	li {
+		margin: 0;
+	}
+	a {
+		display: block;
+		padding: 0.3rem 0 0.3rem 1rem;
+		border-left: 1px solid transparent;
+		margin-left: -1px;
+		color: var(--muted);
+		font-size: 0.875rem;
+		line-height: 1.45;
+		text-decoration: none;
+	}
+	a:hover {
+		color: var(--fg);
+	}
+	a.active {
+		border-left-color: var(--fg);
+		color: var(--fg);
+	}
+	.depth-1 a {
+		padding-left: 1.9rem;
+	}
+	.depth-2 a {
+		padding-left: 2.8rem;
+	}
+
+	/* Wide screens: sticky sidebar in the left margin. */
+	.toc-side {
+		display: none;
+	}
+	@media (min-width: 1180px) {
+		.toc-side {
+			display: block;
+			position: absolute;
+			top: 0;
+			right: calc(100% + 2.5rem);
+			width: 14rem;
+			height: 100%;
+		}
+		.toc-side nav {
+			position: sticky;
+			top: 2.5rem;
+			max-height: calc(100vh - 5rem);
+			overflow-y: auto;
+		}
+		.toc-side ul {
+			border-left: 1px solid var(--border);
+		}
+		.toc-inline {
+			display: none;
+		}
+	}
+	.icon {
+		display: block;
+		color: var(--muted);
+	}
+	.toc-side .icon {
+		margin: 0 0 0.75rem 0.95rem;
+	}
+
+	/* Narrow screens: a collapsed list above the post. */
+	.toc-inline {
+		margin: 0 0 2rem;
+		padding: 0.6rem 1rem;
+		border: 1px solid var(--border);
+		border-radius: 8px;
+	}
+	.toc-inline summary {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		list-style: none;
+		cursor: pointer;
+	}
+	.toc-inline summary::-webkit-details-marker {
+		display: none;
+	}
+	.toc-inline summary::after {
+		content: '';
+		width: 0.35rem;
+		height: 0.35rem;
+		border-right: 1.4px solid var(--muted);
+		border-bottom: 1.4px solid var(--muted);
+		transform: rotate(-45deg);
+		transition: transform 0.15s;
+	}
+	.toc-inline[open] summary::after {
+		transform: rotate(45deg);
+	}
+	.toc-inline ul {
+		margin-top: 0.5rem;
+	}
+	.toc-inline a {
+		padding-left: 0;
+		border-left: 0;
+	}
+	.toc-inline .depth-1 a {
+		padding-left: 0.9rem;
+	}
+	.toc-inline .depth-2 a {
+		padding-left: 1.8rem;
+	}
+</style>

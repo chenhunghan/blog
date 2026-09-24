@@ -1,0 +1,19 @@
+---
+import { SITE_TITLE, url } from '../consts';
+---
+
+<header class="container">
+	<a class="brand" href={url()}>{SITE_TITLE}</a>
+</header>
+<style>
+	header {
+		padding-block: 1.75rem 0;
+	}
+	.brand {
+		color: var(--fg);
+		font-size: 1.35rem;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		text-decoration: none;
+	}
+</style>

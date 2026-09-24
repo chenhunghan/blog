@@ -1,0 +1,140 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { url } from '../consts';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+	currentId: string;
+	tags: string[];
+	limit?: number;
+}
+
+const { currentId, tags, limit = 4 } = Astro.props;
+
+// Posts sharing the most tags first, then the newest.
+const shared = (postTags: string[]) => postTags.filter((t) => tags.includes(t)).length;
+const posts = (await getCollection('blog'))
+	.filter((post) => post.id !== currentId)
+	.sort(
+		(a, b) =>
+			shared(b.data.tags) - shared(a.data.tags) ||
+			b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+	)
+	.slice(0, limit);
+---
+
+{
+	posts.length > 0 && (
+		<section>
+			<h2>More posts</h2>
+			<ul>
+				{posts.map((post) => (
+					<li>
+						<a href={url(`${post.id}/`)}>
+							{(post.data.heroImage ?? post.data.thumbnail) ? (
+								<Image
+									class="thumb"
+									src={(post.data.heroImage ?? post.data.thumbnail)!}
+									width={280}
+									height={280}
+									fit="cover"
+									alt=""
+								/>
+							) : (
+								<span class="thumb placeholder" aria-hidden="true">
+									{post.data.title.charAt(0)}
+								</span>
+							)}
+							<span class="text">
+								<span class="title">{post.data.title}</span>
+								<span class="description">{post.data.description}</span>
+								<FormattedDate date={post.data.pubDate} />
+							</span>
+						</a>
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}
+
+<style>
+	section {
+		margin-top: 4rem;
+		padding-top: 2rem;
+		border-top: 1px solid var(--border);
+	}
+	h2 {
+		margin: 0 0 1.5rem;
+		color: var(--muted);
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	li + li {
+		margin-top: 2rem;
+	}
+	a {
+		display: flex;
+		gap: 1.25rem;
+		align-items: flex-start;
+		color: inherit;
+		text-decoration: none;
+	}
+	.thumb {
+		flex: none;
+		width: 7rem;
+		height: 7rem;
+		border-radius: 8px;
+		object-fit: cover;
+	}
+	.placeholder {
+		display: grid;
+		place-items: center;
+		background: var(--code-bg);
+		color: var(--muted);
+		font-size: 2.5rem;
+		font-weight: 650;
+	}
+	.text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+		min-width: 0;
+	}
+	.title {
+		color: var(--fg);
+		font-size: 1.05rem;
+		font-weight: 600;
+		line-height: 1.35;
+	}
+	a:hover .title {
+		color: var(--accent);
+	}
+	.description {
+		color: var(--muted);
+		font-size: 0.95rem;
+		line-height: 1.5;
+	}
+	.text :global(time) {
+		color: var(--muted);
+		font-family: var(--mono);
+		font-size: 0.8rem;
+	}
+	@media (max-width: 480px) {
+		.thumb {
+			width: 4.5rem;
+			height: 4.5rem;
+		}
+		.placeholder {
+			font-size: 1.75rem;
+		}
+	}
+</style>

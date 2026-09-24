@@ -1,0 +1,127 @@
+---
+import { Font, Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import penIllustration from '../assets/illustrations/pen-1.jpg';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE, url } from '../consts';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<Font cssVariable="--font-departure" preload />
+		<Font cssVariable="--font-newsreader" preload />
+	</head>
+	<body>
+		<Header />
+		<main class="container">
+			<ul class="posts">
+				{
+					posts.map((post) => (
+						<li>
+							<a href={url(`${post.id}/`)}>
+								<span class="title">{post.data.title}</span>
+								<span class="rule" aria-hidden="true" />
+								<FormattedDate date={post.data.pubDate} />
+							</a>
+						</li>
+					))
+				}
+			</ul>
+			<figure class="art">
+				<Image src={penIllustration} width={222} alt="A pen illustration of flowing, layered lines" />
+			</figure>
+		</main>
+		<Footer />
+	</body>
+</html>
+<style>
+	.posts {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.posts li {
+		margin: 0;
+	}
+	.posts a {
+		display: flex;
+		align-items: baseline;
+		gap: 0.75rem;
+		padding: 0.45rem 0;
+		color: var(--fg);
+		text-decoration: none;
+	}
+	.title {
+		font-family: var(--font-newsreader);
+		font-size: 1.15rem;
+		font-style: italic;
+		line-height: 1.4;
+	}
+	/* Hairline leader between title and date. */
+	.rule {
+		flex: 1 1 1.5rem;
+		min-width: 1.5rem;
+		border-bottom: 1px solid var(--border);
+		transform: translateY(-0.3em);
+	}
+	.posts :global(time) {
+		flex: none;
+		color: var(--muted);
+		font-family: var(--font-departure);
+		font-size: 0.8125rem;
+	}
+	.posts a:hover .title {
+		color: var(--accent);
+	}
+	.posts a:hover .rule {
+		border-color: var(--muted);
+	}
+
+	/* The illustration is a quiet accent: small, faded at the edges, never in the reading column. */
+	/* Only shown where there is a side margin for it; hidden on phones and narrow windows. */
+	.art {
+		display: none;
+		/* Fade length and the opacity at the very edge of the illustration. */
+		--fade: 10%;
+		--edge: 0;
+	}
+	.art :global(img) {
+		width: 100%;
+		border-radius: 0;
+		opacity: 0.85;
+		/* Soft eased fade at top and bottom (see --fade / --edge on .art). */
+		mask-image: linear-gradient(
+			to bottom,
+			rgb(0 0 0 / var(--edge)) 0%,
+			rgb(0 0 0 / calc(var(--edge) + (1 - var(--edge)) * 0.25)) calc(var(--fade) * 0.35),
+			rgb(0 0 0 / calc(var(--edge) + (1 - var(--edge)) * 0.65)) calc(var(--fade) * 0.65),
+			#000 var(--fade),
+			#000 calc(100% - var(--fade)),
+			rgb(0 0 0 / calc(var(--edge) + (1 - var(--edge)) * 0.65)) calc(100% - var(--fade) * 0.65),
+			rgb(0 0 0 / calc(var(--edge) + (1 - var(--edge)) * 0.25)) calc(100% - var(--fade) * 0.35),
+			rgb(0 0 0 / var(--edge)) 100%
+		);
+	}
+	@media (min-width: 1040px) {
+		/* Pinned to the top of the window, just right of the reading column; stays put while scrolling. */
+		.art {
+			display: block;
+			position: fixed;
+			top: 0;
+			left: calc(50% + var(--measure) / 2 + 3rem);
+			/* Shift up by the fade length so the top fade sits behind the window's top edge. */
+			transform: translateY(calc(-1 * var(--fade)));
+			width: 111px;
+			margin: 0;
+		}
+	}
+</style>

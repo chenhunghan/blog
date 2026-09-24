@@ -1,0 +1,64 @@
+.figure {
+	margin: 2.5rem 0;
+}
+.stage {
+	position: relative;
+	width: 100%;
+	/* Tall scenes shrink to fit the screen; the camera re-centres them. */
+	max-height: min(75vh, 560px);
+}
+.canvas {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+}
+.controls {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-top: 1rem;
+	padding-top: 0.75rem;
+	border-top: 1px solid var(--border);
+	font-size: 0.875rem;
+}
+.caption {
+	min-height: 3em;
+	margin: 0;
+	color: var(--muted);
+	line-height: 1.5;
+}
+.count {
+	margin-right: 0.6em;
+	color: var(--fg);
+	font-family: var(--mono);
+	font-size: 0.8rem;
+}
+.buttons {
+	display: flex;
+	flex: none;
+	gap: 0.3rem;
+}
+.button {
+	min-width: 2rem;
+	padding: 0.2rem 0.5rem;
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	background: none;
+	color: var(--fg);
+	font-family: var(--mono);
+	font-size: 0.8rem;
+	line-height: 1.4;
+	cursor: pointer;
+}
+.button:hover:not(:disabled) {
+	border-color: var(--muted);
+}
+.button:disabled {
+	opacity: 0.35;
+	cursor: default;
+}
+.wide {
+	min-width: 5.5rem;
+}
