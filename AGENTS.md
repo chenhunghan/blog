@@ -58,6 +58,23 @@ thumbnail: '../../assets/<slug>/thumbnail.png'  # optional, only for "More posts
   Tag MDX/JSX snippets as `jsx`; the `mdx` grammar barely highlights.
 - **Internal links** inside `.astro` files go through `url()` from `src/consts.ts`, never a hardcoded `/…`.
 
+## Translations (Traditional Chinese)
+
+Any post can have a Traditional Chinese version; posts without one are unchanged. `src/i18n.ts` holds the languages,
+UI strings and helpers.
+
+- Write the translation at `src/content/blog/zh-tw/<same slug>.mdx` with `lang: 'zh-TW'` in its frontmatter (same
+  `pubDate`, tags and images; relative paths gain one `../`). It is served at `/blog/zh-tw/<slug>/`.
+- Both versions then get an "English · 繁體中文" switch under the date, `hreflang` alternates, `og:locale(:alternate)`
+  and their own link-preview card (Chinese titles and dates use a Noto Serif TC subset fetched at build time).
+- The English page sends readers to the Chinese version, before it paints, when they chose it on the switch earlier
+  (localStorage `blog.lang`) or, if they never chose, when the first of their browser languages that we have is
+  `zh-*` and they arrived from outside the blog (moving between the blog's own pages keeps the language being
+  read). `?lang=en` keeps English. Crawlers don't run JavaScript, so English links always preview in English.
+- The posts list, RSS and "More posts" list English posts only; English URLs never change.
+- Components used by a translated post take `lang="zh-TW"` (see `src/components/trees/`); keep their strings in a
+  per-language table in the component.
+
 ## Interactive components
 
 Components are React (`.tsx`) in `src/components/`, imported in an `.mdx` post and placed with a client

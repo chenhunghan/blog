@@ -1,0 +1,68 @@
+---
+/**
+ * "English · 繁體中文" on posts that have translations. Picking a language is remembered (localStorage LANG_KEY);
+ * on the English page, a reader who picked another language before, or whose browser prefers one (and who has not
+ * picked), is moved to that version before the page paints. A link to a translation always opens as linked.
+ */
+import { LANG_KEY, LANGS, type Lang, ui } from '../i18n';
+
+interface Props {
+	lang: Lang;
+	/** Every version of this post: language and URL. */
+	versions: { lang: Lang; href: string }[];
+}
+
+const { lang, versions } = Astro.props;
+const targets = Object.fromEntries(versions.map((v) => [v.lang, v.href]));
+---
+
+<nav class="langs" aria-label={ui(lang).readIn}>
+	{
+		versions.map((v, i) => (
+			<>
+				{i > 0 && <span aria-hidden="true">·</span>}
+				{v.lang === lang ? (
+					<span class="current" lang={LANGS[v.lang].htmlLang} aria-current="true">
+						{LANGS[v.lang].name}
+					</span>
+				) : (
+					<a href={v.href} lang={LANGS[v.lang].htmlLang} hreflang={LANGS[v.lang].htmlLang} data-lang={v.lang}>
+						{LANGS[v.lang].name}
+					</a>
+				)}
+			</>
+		))
+	}
+</nav>
+
+<script is:inline define:vars={{ key: LANG_KEY, targets, lang }}>
+	// remember a click on the switch
+	for (const a of document.querySelectorAll('.langs a[data-lang]')) {
+		a.addEventListener('click', () => {
+			try {
+				localStorage.setItem(key, a.dataset.lang);
+			} catch {}
+		});
+	}
+</script>
+
+<style>
+	.langs {
+		display: flex;
+		gap: 0.4rem;
+		align-items: baseline;
+		margin: 0.35rem 0 0;
+		font-size: 0.85rem;
+		color: var(--muted);
+	}
+	.current {
+		color: var(--fg);
+		font-weight: 600;
+	}
+	.langs a {
+		color: var(--muted);
+	}
+	.langs a:hover {
+		color: var(--fg);
+	}
+</style>

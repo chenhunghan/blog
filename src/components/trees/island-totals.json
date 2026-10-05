@@ -1,0 +1,342 @@
+{
+ "source": "https://huggingface.co/datasets/chenhunghan/tw-tree (taiwan/ and taiwan_raw/ index.json totals, snapshot 2026-10-05)",
+ "land_ha": 3567872,
+ "rows": [
+  {
+   "year": 1984,
+   "tree": 66.47,
+   "raw": 65.62,
+   "built": 1.69,
+   "observed": 74.0,
+   "scenes": 9
+  },
+  {
+   "year": 1986,
+   "tree": 65.68,
+   "raw": 67.74,
+   "built": 4.17,
+   "observed": 83.2,
+   "scenes": 35
+  },
+  {
+   "year": 1987,
+   "tree": 66.27,
+   "raw": 64.31,
+   "built": 4.54,
+   "observed": 99.1,
+   "scenes": 85
+  },
+  {
+   "year": 1988,
+   "tree": 67.0,
+   "raw": 64.58,
+   "built": 4.75,
+   "observed": 99.6,
+   "scenes": 99
+  },
+  {
+   "year": 1989,
+   "tree": 66.64,
+   "raw": 65.65,
+   "built": 4.94,
+   "observed": 99.8,
+   "scenes": 138
+  },
+  {
+   "year": 1990,
+   "tree": 68.03,
+   "raw": 66.61,
+   "built": 5.11,
+   "observed": 99.5,
+   "scenes": 112
+  },
+  {
+   "year": 1991,
+   "tree": 66.46,
+   "raw": 67.01,
+   "built": 5.27,
+   "observed": 99.7,
+   "scenes": 140
+  },
+  {
+   "year": 1992,
+   "tree": 67.74,
+   "raw": 66.14,
+   "built": 5.42,
+   "observed": 99.7,
+   "scenes": 134
+  },
+  {
+   "year": 1993,
+   "tree": 66.39,
+   "raw": 61.33,
+   "built": 5.57,
+   "observed": 99.6,
+   "scenes": 119
+  },
+  {
+   "year": 1994,
+   "tree": 66.08,
+   "raw": 65.44,
+   "built": 5.74,
+   "observed": 99.6,
+   "scenes": 137
+  },
+  {
+   "year": 1995,
+   "tree": 66.26,
+   "raw": 66.57,
+   "built": 5.89,
+   "observed": 99.9,
+   "scenes": 109
+  },
+  {
+   "year": 1996,
+   "tree": 67.33,
+   "raw": 64.29,
+   "built": 6.04,
+   "observed": 99.4,
+   "scenes": 139
+  },
+  {
+   "year": 1997,
+   "tree": 65.56,
+   "raw": 63.96,
+   "built": 6.18,
+   "observed": 98.3,
+   "scenes": 129
+  },
+  {
+   "year": 1998,
+   "tree": 66.53,
+   "raw": 66.41,
+   "built": 6.34,
+   "observed": 98.5,
+   "scenes": 97
+  },
+  {
+   "year": 1999,
+   "tree": 67.58,
+   "raw": 67.79,
+   "built": 6.48,
+   "observed": 99.7,
+   "scenes": 154
+  },
+  {
+   "year": 2000,
+   "tree": 68.51,
+   "raw": 68.16,
+   "built": 6.63,
+   "observed": 100.0,
+   "scenes": 279
+  },
+  {
+   "year": 2001,
+   "tree": 68.2,
+   "raw": 64.56,
+   "built": 6.78,
+   "observed": 99.9,
+   "scenes": 312
+  },
+  {
+   "year": 2002,
+   "tree": 68.79,
+   "raw": 64.95,
+   "built": 6.9,
+   "observed": 99.9,
+   "scenes": 281
+  },
+  {
+   "year": 2003,
+   "tree": 69.64,
+   "raw": 65.04,
+   "built": 7.03,
+   "observed": 99.9,
+   "scenes": 255
+  },
+  {
+   "year": 2004,
+   "tree": 69.04,
+   "raw": 64.78,
+   "built": 7.16,
+   "observed": 99.7,
+   "scenes": 313
+  },
+  {
+   "year": 2005,
+   "tree": 68.08,
+   "raw": 66.78,
+   "built": 7.28,
+   "observed": 99.7,
+   "scenes": 222
+  },
+  {
+   "year": 2006,
+   "tree": 67.8,
+   "raw": 66.46,
+   "built": 7.47,
+   "observed": 99.8,
+   "scenes": 250
+  },
+  {
+   "year": 2007,
+   "tree": 68.4,
+   "raw": 63.45,
+   "built": 7.59,
+   "observed": 99.9,
+   "scenes": 225
+  },
+  {
+   "year": 2008,
+   "tree": 69.07,
+   "raw": 68.37,
+   "built": 7.7,
+   "observed": 99.7,
+   "scenes": 276
+  },
+  {
+   "year": 2009,
+   "tree": 68.33,
+   "raw": 65.48,
+   "built": 7.81,
+   "observed": 99.7,
+   "scenes": 276
+  },
+  {
+   "year": 2010,
+   "tree": 67.61,
+   "raw": 64.04,
+   "built": 7.92,
+   "observed": 99.8,
+   "scenes": 203
+  },
+  {
+   "year": 2011,
+   "tree": 68.21,
+   "raw": 66.65,
+   "built": 8.03,
+   "observed": 99.5,
+   "scenes": 180
+  },
+  {
+   "year": 2012,
+   "tree": 66.27,
+   "raw": 65.96,
+   "built": 8.16,
+   "observed": 99.3,
+   "scenes": 102
+  },
+  {
+   "year": 2013,
+   "tree": 67.28,
+   "raw": 68.06,
+   "built": 8.31,
+   "observed": 100.0,
+   "scenes": 226
+  },
+  {
+   "year": 2014,
+   "tree": 69.2,
+   "raw": 69.14,
+   "built": 8.44,
+   "observed": 100.0,
+   "scenes": 379
+  },
+  {
+   "year": 2015,
+   "tree": 68.41,
+   "raw": 67.85,
+   "built": 8.59,
+   "observed": 100.0,
+   "scenes": 344
+  },
+  {
+   "year": 2016,
+   "tree": 68.21,
+   "raw": 70.61,
+   "built": 8.75,
+   "observed": 100.0,
+   "scenes": 306
+  },
+  {
+   "year": 2017,
+   "tree": 69.58,
+   "raw": 69.19,
+   "built": 8.96,
+   "observed": 100.0,
+   "scenes": 339
+  },
+  {
+   "year": 2018,
+   "tree": 68.32,
+   "raw": 70.29,
+   "built": 9.16,
+   "observed": 100.0,
+   "scenes": 336
+  },
+  {
+   "year": 2019,
+   "tree": 69.18,
+   "raw": 71.3,
+   "built": 9.25,
+   "observed": 100.0,
+   "scenes": 321
+  },
+  {
+   "year": 2020,
+   "tree": 69.37,
+   "raw": 71.32,
+   "built": 9.36,
+   "observed": 100.0,
+   "scenes": 365
+  },
+  {
+   "year": 2021,
+   "tree": 70.31,
+   "raw": 70.31,
+   "built": 9.4,
+   "observed": 100.0,
+   "scenes": 375
+  },
+  {
+   "year": 2022,
+   "tree": 70.52,
+   "raw": 75.28,
+   "built": 9.4,
+   "observed": 100.0,
+   "scenes": 498
+  },
+  {
+   "year": 2023,
+   "tree": 69.08,
+   "raw": 70.3,
+   "built": 9.4,
+   "observed": 100.0,
+   "scenes": 509
+  },
+  {
+   "year": 2024,
+   "tree": 69.35,
+   "raw": 72.65,
+   "built": 9.4,
+   "observed": 100.0,
+   "scenes": 386
+  },
+  {
+   "year": 2025,
+   "tree": 68.87,
+   "raw": 74.23,
+   "built": 9.4,
+   "observed": 100.0,
+   "scenes": 359
+  },
+  {
+   "year": 2026,
+   "tree": 68.55,
+   "raw": 69.75,
+   "built": 9.4,
+   "observed": 99.9,
+   "scenes": 277
+  }
+ ]
+}

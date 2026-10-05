@@ -2,20 +2,22 @@
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import { url } from '../consts';
+import { isDefault, type Lang, ui } from '../i18n';
 import FormattedDate from './FormattedDate.astro';
 
 interface Props {
 	currentId: string;
 	tags: string[];
 	limit?: number;
+	lang?: Lang;
 }
 
-const { currentId, tags, limit = 4 } = Astro.props;
+const { currentId, tags, limit = 4, lang = 'en' } = Astro.props;
 
 // Posts sharing the most tags first, then the newest.
 const shared = (postTags: string[]) => postTags.filter((t) => tags.includes(t)).length;
-const posts = (await getCollection('blog'))
-	.filter((post) => post.id !== currentId)
+const posts = (await getCollection('blog', isDefault))
+	.filter((post) => post.id !== currentId && !currentId.endsWith(`/${post.id}`))
 	.sort(
 		(a, b) =>
 			shared(b.data.tags) - shared(a.data.tags) ||
@@ -27,7 +29,7 @@ const posts = (await getCollection('blog'))
 {
 	posts.length > 0 && (
 		<section>
-			<h2>More posts</h2>
+			<h2>{ui(lang).morePosts}</h2>
 			<ul>
 				{posts.map((post) => (
 					<li>

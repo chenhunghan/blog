@@ -1,9 +1,11 @@
 import { getCollection } from 'astro:content';
 import rss from '@astrojs/rss';
 import { SITE_DESCRIPTION, SITE_TITLE, url } from '../consts';
+import { isDefault } from '../i18n';
 
 export async function GET(context) {
-	const posts = (await getCollection('blog')).sort(
+	// English posts only: translations are other versions of the same post, not new items
+	const posts = (await getCollection('blog', isDefault)).sort(
 		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 	);
 	return rss({

@@ -1,0 +1,73 @@
+---
+title: 'Trees vs Unicorns'
+description: 'How many trees did we burn per $1B of revenue per TSMC fab? A 3D satellite map of Taiwan’s tree cover, 1984–2026.'
+pubDate: '2026-10-05'
+tags: [ai, llm, agents, maps, satellite]
+thumbnail: '../../assets/trees-vs-unicorns/thumbnail.jpg'
+---
+import MapEmbed from '../../components/trees/MapEmbed.tsx';
+import PixelJourney from '../../components/trees/PixelJourney.tsx';
+import TreesVsUnicorns from '../../components/trees/TreesVsUnicorns.tsx';
+
+Long story short: I built a map with satellite images to answer the question: how many trees did we burn per $1B of revenue per TSMC fab?
+
+<MapEmbed
+	client:load
+	wide
+	autostart
+	aspect={16 / 9}
+	view="story=tsmc-fab14"
+	poster="/blog/images/trees-vs-unicorns/fab14.jpg"
+	alt="TSMC Fab 14 and Fab 6 in the Southern Taiwan Science Park, Tainan: the 3D map plays from 1995, the fields and trees inside the outline give way to fab buildings, and unicorns fly out of them"
+	caption="TSMC Fab 14 (with Fab 6) in Tainan. One 🦄 per US$1 bn of estimated revenue; TSMC reports revenue only for the whole company. Landsat (USGS) · ESA WorldCover 2021 (CC BY 4.0) · Copernicus DEM · GISA (CC BY 4.0) · JRC GHSL · site outline and buildings © OpenStreetMap contributors (ODbL)."
+/>
+
+The story began when I found [research by Academia Sinica](https://taipei-tree-cover.pages.dev/) that used satellite images to detect tree canopy changes from 2017 to 2026 in Taipei, but then I found it did not have the data I was more interested in: from about 1980 onward. Since the researchers documented all the methods and raw data sources, I asked Opus 5.5 to follow the same path, to download the satellite images from when they were first available, and to train a classifier to get the tree canopy number for each year.
+
+There was no such data available, so we started from raw satellite images. Opus asked me to register a Google Earth Engine account, then we downloaded about 20GB of images, trained a random forest regression model, predicted how much of each pixel is tree from 1984 to 2026, cleaned up the data, and made estimates to fill the gaps (e.g. 1985 is missing). We documented the trade-offs, e.g. grassland and dwarf bamboo are also classified as "forest". There was a lot of scripting and parsing to compute the data we wanted, and then we republished it [on Hugging Face](https://huggingface.co/datasets/chenhunghan/tw-tree).
+
+<PixelJourney client:visible />
+
+I then asked Opus to visualize the trees on the map. It built the 3D forest based on the data we collected, and it was a beautiful map, but trees alone do not tell the story of how canopy changes correlate with human activities.
+
+<MapEmbed
+	client:load
+	view="at=22.5538,120.8102&d=2600&az=200&el=45&y=2007&play=1&weather=clear&hour=10"
+	poster="/blog/images/trees-vs-unicorns/forest.jpg"
+	alt="Dense mountain forest on the Pingtung–Taitung border in 2007, before Typhoon Morakot"
+	caption="Mountain forest on the Pingtung–Taitung border, 1,400 m up. It plays from 2007: Typhoon Morakot (August 2009) set off landslides across southern Taiwan, and these slopes go from about 90% tree cover to bare ground. Drag to move; two fingers or ⌘/Ctrl + scroll to zoom."
+/>
+
+(Opus did many extras for me without asking. It was very capable of using shaders to build 3D objects without using any assets, so we added clear, cloudy and rainy weather, night views, and reflections on rivers, lakes and the sea, just to make the map look nicer.)
+
+<MapEmbed
+	client:load
+	view="at=25.1342,121.8567&d=4140&az=-24&el=12&y=2026&weather=clear&hour=17.3&time=auto"
+	poster="/blog/images/trees-vs-unicorns/night.jpg"
+	alt="Keelung Mountain in the last evening light, with the hillside town of Jiufen below it"
+>
+	Jiufen and Keelung Mountain at golden hour; as it plays, the sun sets and the town lights up. Jiufen is often compared to the bathhouse town in *Spirited Away* (神隱少女); [Tofugu’s photos](https://www.tofugu.com/travel/jiufen-spirited-away/) show why. The weather and the time of day are decoration, not data.
+</MapEmbed>
+
+So we kept going and derived more data from satellite images, using GISA 1972–2021 and GHSL 2018, to find out how building heights changed over time from 1984 to 2026, so we can see that when houses are built, trees are gone.
+
+<MapEmbed
+	client:load
+	view="at=24.8180,121.0260&d=3100&az=200&el=32&y=1995&play=1&weather=clear&hour=10.5"
+	poster="/blog/images/trees-vs-unicorns/buildings.jpg"
+	alt="Zhubei in Hsinchu County in 1995: fields and trees, before the city"
+	caption="Zhubei, Hsinchu County: fields in 1995, a city by 2021. It plays from 1995."
+/>
+
+I was just curious and kept asking questions, and it was always able to find publicly available data to answer them. I ended up looking at a city called Tainan. Tainan is my home-home-home. I love the city; it was the capital of Taiwan until the late 1800s. My ancestors crossed the strait from southern China about 250–300 years ago and landed here.
+
+For most of its history, Tainan was not a place where people got rich. It was a place people left. My grandparents left, my parents left, and I ended up growing up in Taipei. But it's also where Jensen Huang and Lisa Su were born. And today, TSMC's most advanced fabs are in Tainan too. Most likely, Opus is running on chips made in Tainan.
+
+Fabs are among the most advanced factories in human history. They occupy huge spaces on a small island, generate wealth, create jobs, and rebuild the cities around them, but they also consume a lot of natural resources, including water and electricity, and replace farmland with gigantic buildings with pale rooftops.
+
+I then pushed Opus to collect TSMC's earnings and try to estimate how much the fab in Tainan brought us, in exchange for farmland and trees. And I asked it to draw a unicorn for every $1B of revenue a fab generated.
+
+<TreesVsUnicorns client:visible />
+
+Too many unicorns to count. My father would probably say we didn't have a choice back then. Maybe we still don't.
+

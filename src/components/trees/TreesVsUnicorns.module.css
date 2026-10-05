@@ -1,0 +1,165 @@
+.figure {
+	margin: 2.5rem 0;
+	font-size: 0.875rem;
+}
+.head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-bottom: 0.6rem;
+}
+.title {
+	display: flex;
+	align-items: baseline;
+	gap: 0.75rem;
+}
+.year {
+	font-family: var(--mono);
+	font-variant-numeric: tabular-nums;
+	color: var(--muted);
+}
+.button {
+	min-width: 5.5rem;
+	padding: 0.2rem 0.5rem;
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	background: none;
+	color: var(--fg);
+	font-family: var(--mono);
+	font-size: 0.8rem;
+	line-height: 1.4;
+	cursor: pointer;
+}
+.button:hover {
+	border-color: var(--muted);
+}
+.panels {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+@media (max-width: 560px) {
+	.panels {
+		grid-template-columns: 1fr;
+	}
+}
+.panel {
+	min-width: 0;
+	container-type: inline-size;
+	padding: 0.75rem;
+	border: 1px solid var(--border);
+	border-radius: 10px;
+}
+.count {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 0.5rem;
+}
+.big {
+	font-size: 1.35rem;
+	font-weight: 650;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.2;
+}
+.label,
+.unit {
+	color: var(--muted);
+	font-size: 0.8rem;
+}
+.unit {
+	margin-top: 0.4rem;
+}
+/* unit grids: fixed size for the largest site, so switching sites never moves the page */
+.grid {
+	display: grid;
+	gap: 2px;
+}
+/* both grids: the same glyph size and 20 columns; trees lost turn into pale stumps of themselves */
+.trees,
+.unicorns {
+	grid-template-columns: repeat(20, minmax(0, 1fr));
+}
+.trees i.gone {
+	filter: grayscale(1);
+	opacity: 0.22;
+}
+.trees i.empty,
+.unicorns i:not(.on) {
+	visibility: hidden;
+}
+.trees i,
+.unicorns i {
+	font-style: normal;
+	font-size: 3.6cqi;
+	line-height: 1.15;
+	text-align: center;
+}
+.unicorns i.on {
+	animation: pop 0.35s ease-out;
+}
+.trees i {
+	transition: opacity 0.5s, filter 0.5s;
+}
+@keyframes pop {
+	from {
+		transform: scale(0.2) translateY(6px);
+		opacity: 0;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.unicorns i.on {
+		animation: none;
+	}
+	.trees i {
+		transition: none;
+	}
+}
+.result {
+	margin: 0.75rem 0;
+	font-size: 1.05rem;
+	font-weight: 600;
+	text-align: center;
+	font-variant-numeric: tabular-nums;
+}
+.table {
+	display: flex;
+	flex-direction: column;
+	border-top: 1px solid var(--border);
+}
+.row {
+	display: grid;
+	grid-template-columns: 1.6fr 1fr 0.8fr 1fr;
+	gap: 0.5rem;
+	padding: 0.35rem 0.25rem;
+	border: 0;
+	border-bottom: 1px solid var(--border);
+	background: none;
+	color: var(--fg);
+	font: inherit;
+	font-variant-numeric: tabular-nums;
+	text-align: left;
+	cursor: pointer;
+}
+.row:hover {
+	background: var(--code-bg);
+}
+.current {
+	font-weight: 650;
+	background: var(--code-bg);
+}
+.name {
+	white-space: nowrap;
+}
+.place {
+	color: var(--muted);
+	font-weight: 400;
+}
+.ratio {
+	text-align: right;
+}
+.caption {
+	margin-top: 0.75rem;
+	color: var(--muted);
+	line-height: 1.5;
+}

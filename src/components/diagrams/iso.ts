@@ -43,6 +43,8 @@ export interface IsoStep {
 	highlight?: string[];
 	/** Step length in ms. */
 	duration?: number;
+	/** Node the caption points at in tooltip mode (default: the last node on `path`, else the first highlighted). */
+	anchor?: string;
 }
 
 export interface IsoScene {
@@ -359,6 +361,20 @@ export function renderScene(
 	}
 	ctx.restore();
 
+	// Dots travel along the connectors, so they sit at the connectors' level: boxes in front hide them.
+	ctx.save();
+	ctx.fillStyle = pal.accent;
+	ctx.shadowColor = pal.accent;
+	ctx.shadowBlur = 8;
+	for (const [p, alpha] of frame.dots) {
+		const [px, py] = toScreen(cam, p);
+		ctx.globalAlpha = alpha;
+		ctx.beginPath();
+		ctx.arc(px, py, Math.max(2.5, cam.scale * 0.07), 0, Math.PI * 2);
+		ctx.fill();
+	}
+	ctx.restore();
+
 	// Painter's order: lower levels first, then back to front within a level.
 	type Item = { z: number; depth: number; draw: () => void };
 	const items: Item[] = [
@@ -376,16 +392,4 @@ export function renderScene(
 	items.sort((a, b) => a.z - b.z || a.depth - b.depth);
 	for (const item of items) item.draw();
 
-	ctx.save();
-	ctx.fillStyle = pal.accent;
-	ctx.shadowColor = pal.accent;
-	ctx.shadowBlur = 8;
-	for (const [p, alpha] of frame.dots) {
-		const [px, py] = toScreen(cam, p);
-		ctx.globalAlpha = alpha;
-		ctx.beginPath();
-		ctx.arc(px, py, Math.max(2.5, cam.scale * 0.07), 0, Math.PI * 2);
-		ctx.fill();
-	}
-	ctx.restore();
 }

@@ -62,3 +62,61 @@
 .wide {
 	min-width: 5.5rem;
 }
+/* captions="tooltip": a bubble on the step's node, inside the stage */
+.tip {
+	position: absolute;
+	z-index: 1;
+	width: max-content;
+	max-width: min(17rem, calc(100% - 8px));
+	padding: 0.45rem 0.65rem;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	background: var(--bg);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	color: var(--fg);
+	font-size: 0.8rem;
+	line-height: 1.45;
+	pointer-events: none;
+	transition: left 0.35s ease, top 0.35s ease;
+}
+.tip::after {
+	content: '';
+	position: absolute;
+	width: 8px;
+	height: 8px;
+	border: 1px solid var(--border);
+	background: var(--bg);
+	transform: translate(-50%, -50%) rotate(45deg);
+}
+.tip[data-side='above']::after {
+	left: var(--arrow, 50%);
+	top: 100%;
+	border-top: 0;
+	border-left: 0;
+}
+.tip[data-side='below']::after {
+	left: var(--arrow, 50%);
+	top: 0;
+	border-bottom: 0;
+	border-right: 0;
+}
+.tip[data-side='right']::after {
+	left: 0;
+	top: var(--arrow, 50%);
+	border-top: 0;
+	border-right: 0;
+}
+.tip[data-side='left']::after {
+	left: 100%;
+	top: var(--arrow, 50%);
+	border-bottom: 0;
+	border-left: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+	.tip {
+		transition: none;
+	}
+}
+.controlsOnly {
+	justify-content: flex-end;
+}

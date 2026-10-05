@@ -1,0 +1,77 @@
+---
+title: '樹 vs 獨角獸'
+description: '台積電每座晶圓廠每賺進 10 億美元，背後少了多少棵樹？我用衛星影像做了一張 1984–2026 年臺灣樹冠的 3D 地圖。'
+pubDate: '2026-10-05'
+tags: [ai, llm, agents, maps, satellite]
+thumbnail: '../../../assets/trees-vs-unicorns/thumbnail.jpg'
+lang: 'zh-TW'
+---
+import MapEmbed from '../../../components/trees/MapEmbed.tsx';
+import PixelJourney from '../../../components/trees/PixelJourney.tsx';
+import TreesVsUnicorns from '../../../components/trees/TreesVsUnicorns.tsx';
+
+先講結論：我用衛星影像做了一張地圖，想回答一個問題：台積電的每一座晶圓廠，每賺進 10 億美元，背後燒掉了多少棵樹？
+
+<MapEmbed
+	client:load
+	lang="zh-TW"
+	wide
+	autostart
+	aspect={16 / 9}
+	view="story=tsmc-fab14"
+	poster="/blog/images/trees-vs-unicorns/fab14.jpg"
+	alt="臺南科學園區的台積電 Fab 14 與 Fab 6：3D 地圖從 1995 年開始播放，廠區範圍內的農田和樹被廠房取代，獨角獸從廠房飛出"
+	caption="臺南的台積電 Fab 14（含 Fab 6）。估計營收每滿 10 億美元就飛出一隻 🦄；台積電只公布全公司的營收，各廠數字是推估的。Landsat (USGS) · ESA WorldCover 2021 (CC BY 4.0) · Copernicus DEM · GISA (CC BY 4.0) · JRC GHSL · 廠區範圍與建物 © OpenStreetMap 貢獻者 (ODbL)。"
+/>
+
+事情的起點，是我看到[中研院的一份研究](https://taipei-tree-cover.pages.dev/)，用衛星影像追蹤臺北 2017 到 2026 年的樹冠變化。但我更想知道的是更早以前，大概從 1980 年代開始的變化，這份研究並沒有涵蓋。好在研究團隊把方法和原始資料來源都寫得很清楚，所以我請 Opus 5.5 照著同樣的做法，從有衛星影像的第一年開始下載，再訓練一個分類器，算出每一年的樹冠覆蓋。
+
+因為現成的資料根本不存在，我們只好從最原始的衛星影像做起。Opus 先叫我去申請 Google Earth Engine 帳號，接著我們下載了大約 20GB 的影像、訓練了一個隨機森林迴歸模型，推估 1984 到 2026 年每個像元裡有多少比例是樹，再把資料清乾淨，缺的年份就用估計補上（像 1985 年就整年沒資料）。過程中的取捨我們也都記錄下來，例如草地和箭竹也會被當成「森林」。為了算出想要的數字，寫了一大堆腳本、做了不少解析，最後把整份資料重新發布[在 Hugging Face 上](https://huggingface.co/datasets/chenhunghan/tw-tree)。
+
+<PixelJourney client:visible lang="zh-TW" />
+
+接著我請 Opus 把這些樹畫到地圖上。它照著我們整理出來的資料，長出一整片 3D 森林。地圖很漂亮，但只有樹，還是看不出樹冠的變化跟人的活動有什麼關係。
+
+<MapEmbed
+	client:load
+	lang="zh-TW"
+	view="at=22.5538,120.8102&d=2600&az=200&el=45&y=2007&play=1&weather=clear&hour=10"
+	poster="/blog/images/trees-vs-unicorns/forest.jpg"
+	alt="2007 年莫拉克颱風前，屏東與臺東交界茂密的山林"
+	caption="屏東、臺東交界，海拔 1,400 公尺的山林，從 2007 年開始播放。2009 年 8 月的莫拉克颱風在南臺灣引發大規模崩塌，這片山坡從將近九成的樹冠，一夕變成光禿禿的土石。拖曳可以移動，用兩指或按住 ⌘/Ctrl 捲動可以縮放。"
+/>
+
+（很多東西是 Opus 自己多做的，我根本沒開口。它很會寫 shader，不用任何素材就能做出 3D 物件，所以我們順手加了晴天、陰天、雨天和夜景，還有河流、湖泊和海面的倒影，純粹就是想讓地圖更好看。）
+
+<MapEmbed
+	client:load
+	lang="zh-TW"
+	view="at=25.1342,121.8567&d=4140&az=-24&el=12&y=2026&weather=clear&hour=17.3&time=auto"
+	poster="/blog/images/trees-vs-unicorns/night.jpg"
+	alt="傍晚最後一道陽光灑在基隆山上，山腳下是依山而建的九份"
+>
+	夕陽下的九份與基隆山。按下播放，太陽慢慢落下，山城的燈一盞盞亮起來。很多人說九份就像《神隱少女》裡的湯屋小鎮，看看 [Tofugu 拍的照片](https://www.tofugu.com/travel/jiufen-spirited-away/)就知道為什麼。天氣和時間只是畫面效果，不是資料。
+</MapEmbed>
+
+所以我們繼續往下挖，用 GISA 1972–2021 和 GHSL 2018，從衛星影像再推出更多資料，看 1984 到 2026 年間建築物的高度怎麼變化。這樣就看得出來：房子蓋起來的地方，樹就不見了。
+
+<MapEmbed
+	client:load
+	lang="zh-TW"
+	view="at=24.8180,121.0260&d=3100&az=200&el=32&y=1995&play=1&weather=clear&hour=10.5"
+	poster="/blog/images/trees-vs-unicorns/buildings.jpg"
+	alt="1995 年的新竹縣竹北：城市出現之前的農田與樹"
+	caption="新竹縣竹北：1995 年還是一片農田，到了 2021 年已經是一座城市。從 1995 年開始播放。"
+/>
+
+我就是好奇，一直問下去，而它幾乎總能找到公開資料來回答。最後，我把目光放到了臺南。臺南是我老家的老家的老家。我很愛這座城市，它一直到 1800 年代後期都還是臺灣的首府。我的祖先大約在 250 到 300 年前，從中國南方渡海來臺，就在這裡上岸。
+
+在臺南大部分的歷史裡，這裡都不是讓人發財的地方，而是大家離開的地方。我的阿公阿嬤離開了，我的爸媽也離開了，最後我是在臺北長大的。但黃仁勳和蘇姿丰都是在臺南出生的。而今天，台積電最先進的晶圓廠也在臺南。Opus 現在八成就跑在臺南做出來的晶片上。
+
+晶圓廠可以說是人類史上最先進的工廠。它們在這座小島上占掉一大片土地，帶來財富、創造工作，也改變了周邊的城市；但它們同時用掉大量的自然資源，包括水和電，還把農地換成一棟棟屋頂灰白的巨大廠房。
+
+後來我又要 Opus 去翻台積電的財報，試著估算臺南的晶圓廠拿農地和樹，替我們換來了多少錢。我還請它在每座廠每賺進 10 億美元時，就畫一隻獨角獸。
+
+<TreesVsUnicorns client:visible lang="zh-TW" />
+
+獨角獸多到數不完。我爸大概會說，當年我們根本沒得選。也許現在也還是沒得選。

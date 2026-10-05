@@ -7,22 +7,66 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import RelatedPosts from '../components/RelatedPosts.astro';
+import LanguageSwitch from '../components/LanguageSwitch.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 import { url } from '../consts';
+import { DEFAULT_LANG, LANG_KEY, LANGS, type Lang, ui } from '../i18n';
 
-type Props = CollectionEntry<'blog'>['data'] & { id: string; headings?: MarkdownHeading[] };
+type Props = CollectionEntry<'blog'>['data'] & {
+	id: string;
+	headings?: MarkdownHeading[];
+	/** Every language version of this post (itself included); more than one shows the language switch. */
+	versions?: { lang: Lang; href: string }[];
+};
 
-const { id, title, description, pubDate, updatedDate, heroImage, tags, headings = [] } = Astro.props;
+const {
+	id,
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	tags,
+	headings = [],
+	lang = DEFAULT_LANG,
+	versions = [],
+} = Astro.props;
+const translated = versions.length > 1;
+// The English page moves readers to their language: the one they picked before, else the first of the browser's
+// preferred languages that we have (zh-* -> zh-TW, en-* stays). ?lang=en keeps English.
+const targets = Object.fromEntries(versions.filter((v) => v.lang !== DEFAULT_LANG).map((v) => [v.lang, v.href]));
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={LANGS[lang].htmlLang}>
 	<head>
+		<script is:inline define:vars={{ key: LANG_KEY, targets, active: translated && lang === DEFAULT_LANG }}>
+			if (active) {
+				try {
+					var want = localStorage.getItem(key);
+					// the browser's languages decide only on arrival from outside the blog; moving between its pages
+					// (e.g. "More posts" on an English post) keeps the language being read
+					var inside = false;
+					try { inside = new URL(document.referrer).origin === location.origin; } catch (e) {}
+					if (!want && !inside) {
+						var prefs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
+						for (var i = 0; i < prefs.length && !want; i++) {
+							var l = String(prefs[i] || '').toLowerCase();
+							if (l.indexOf('en') === 0) want = 'en';
+							else if (l.indexOf('zh') === 0) want = 'zh-TW';
+						}
+					}
+					if (want && targets[want] && !/[?&]lang=en\b/.test(location.search)) location.replace(targets[want] + location.hash);
+				} catch (e) {}
+			}
+		</script>
 		<BaseHead
 			title={title}
 			description={description}
 			image={url(`og/${id}.png`)}
 			article={{ published: pubDate, modified: updatedDate, tags }}
+			lang={lang}
+			alternates={translated ? versions : []}
 		/>
 	</head>
 	<body>
@@ -32,16 +76,17 @@ const { id, title, description, pubDate, updatedDate, heroImage, tags, headings 
 				<header>
 					<h1>{title}</h1>
 					<p class="meta muted">
-						<FormattedDate date={pubDate} />
+						<FormattedDate date={pubDate} lang={lang} />
 						{
 							updatedDate && (
 								<>
-									{' · updated '}
-									<FormattedDate date={updatedDate} />
+									{` · ${ui(lang).updated} `}
+									<FormattedDate date={updatedDate} lang={lang} />
 								</>
 							)
 						}
 					</p>
+					{translated && <LanguageSwitch lang={lang} versions={versions} />}
 				</header>
 				{heroImage && <Image class="hero" width={1344} src={heroImage} alt="" />}
 				<div class="prose">
@@ -49,7 +94,7 @@ const { id, title, description, pubDate, updatedDate, heroImage, tags, headings 
 					<slot />
 				</div>
 			</article>
-			<RelatedPosts currentId={id} tags={tags} />
+			<RelatedPosts currentId={id} tags={tags} lang={lang} />
 		</main>
 		<Footer />
 		<script>

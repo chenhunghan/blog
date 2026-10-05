@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styles from './IsoDiagram.module.css';
 import {
 	buildPath,
@@ -10,6 +10,7 @@ import {
 	readPalette,
 	renderScene,
 	sceneBounds,
+	toScreen,
 } from './iso';
 
 export type { IsoScene } from './iso';
@@ -20,6 +21,9 @@ interface Props {
 	label: string;
 	/** Start over after the last step instead of stopping. */
 	loop?: boolean;
+	/** 'tooltip': each step's caption is a bubble on the node it is about (step.anchor, else the end of its path),
+	 * inside the diagram, so nothing below it changes height; 'below' (default): a caption line under the diagram. */
+	captions?: 'below' | 'tooltip';
 }
 
 const STEP_MS = 2400;
@@ -28,9 +32,11 @@ const IDLE_MS = 2200; // one lap per edge when a scene has no steps
 
 type Controls = Record<'play' | 'pause' | 'replay' | 'next' | 'prev', () => void>;
 
-export default function IsoDiagram({ scene, label, loop = false }: Props) {
+export default function IsoDiagram({ scene, label, loop = false, captions = 'below' }: Props) {
 	const stageRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const tipRef = useRef<HTMLDivElement>(null);
+	const placeTip = useRef<() => void>(() => {});
 	const controls = useRef<Controls | null>(null);
 	const steps = scene.steps ?? [];
 	const [step, setStep] = useState(0);
@@ -85,6 +91,60 @@ export default function IsoDiagram({ scene, label, loop = false }: Props) {
 				}
 			}
 			return { glow, dots };
+		};
+
+		// Tooltip captions: beside the step's node, on whichever side (above, below, left, right) covers the least of
+		// the other nodes, kept inside the stage; the arrow points at the node.
+		const screenBox = (n: (typeof scene.nodes)[number]) => {
+			const z0 = n.z ?? 0;
+			const z1 = z0 + (n.h ?? 0.5);
+			const pts: [number, number][] = [];
+			for (const dx of [0, n.w]) for (const dy of [0, n.d]) for (const z of [z0, z1]) pts.push(toScreen(cam!, [n.x + dx, n.y + dy, z]));
+			const xs = pts.map((q) => q[0]);
+			const ys = pts.map((q) => q[1]);
+			return { l: Math.min(...xs), r: Math.max(...xs), t: Math.min(...ys), b: Math.max(...ys) };
+		};
+		placeTip.current = () => {
+			const tip = tipRef.current;
+			const s = steps[st.step];
+			if (!tip || !cam || !s) return;
+			const n = byId.get(s.anchor ?? s.path?.at(-1) ?? s.highlight?.[0] ?? '');
+			if (!n) {
+				tip.style.visibility = 'hidden';
+				return;
+			}
+			const a = screenBox(n);
+			const others = scene.nodes.filter((o) => o !== n).map(screenBox);
+			const w = tip.offsetWidth;
+			const h = tip.offsetHeight;
+			const gap = 12;
+			const cx = (a.l + a.r) / 2;
+			const cy = (a.t + a.b) / 2;
+			const clampX = (x: number) => Math.max(4, Math.min(size.w - w - 4, x));
+			const clampY = (y: number) => Math.max(4, Math.min(size.h - h - 4, y));
+			const options = [
+				{ side: 'above', x: clampX(cx - w / 2), y: a.t - gap - h },
+				{ side: 'below', x: clampX(cx - w / 2), y: a.b + gap },
+				{ side: 'right', x: a.r + gap, y: clampY(cy - h / 2) },
+				{ side: 'left', x: a.l - gap - w, y: clampY(cy - h / 2) },
+			];
+			const cost = (o: (typeof options)[number]) => {
+				const out = o.x < 0 || o.y < 0 || o.x + w > size.w || o.y + h > size.h;
+				let covered = 0;
+				for (const b of others) {
+					const ox = Math.max(0, Math.min(o.x + w, b.r) - Math.max(o.x, b.l));
+					const oy = Math.max(0, Math.min(o.y + h, b.b) - Math.max(o.y, b.t));
+					covered += ox * oy;
+				}
+				return (out ? 1e9 : 0) + covered;
+			};
+			const best = options.reduce((p, o) => (cost(o) < cost(p) ? o : p));
+			tip.style.left = `${best.x}px`;
+			tip.style.top = `${best.y}px`;
+			const vertical = best.side === 'above' || best.side === 'below';
+			tip.style.setProperty('--arrow', vertical ? `${Math.max(12, Math.min(w - 12, cx - best.x))}px` : `${Math.max(12, Math.min(h - 12, cy - best.y))}px`);
+			tip.dataset.side = best.side;
+			tip.style.visibility = 'visible';
 		};
 
 		const draw = () => {
@@ -165,6 +225,7 @@ export default function IsoDiagram({ scene, label, loop = false }: Props) {
 			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 			cam = fitCamera(scene, w, h);
 			draw();
+			placeTip.current();
 		};
 		const resizeObserver = new ResizeObserver(resize);
 		resizeObserver.observe(stage);
@@ -201,19 +262,32 @@ export default function IsoDiagram({ scene, label, loop = false }: Props) {
 	}, [scene, loop]);
 
 	const current = steps[step];
+	// the caption's size changes with its text: place it after React has rendered it
+	useLayoutEffect(() => placeTip.current(), [step]);
+	const tooltip = captions === 'tooltip';
 	return (
 		<figure className={styles.figure}>
 			<div ref={stageRef} className={styles.stage} style={{ aspectRatio: `${spanX} / ${spanY}` }}>
 				<canvas ref={canvasRef} className={styles.canvas} role="img" aria-label={label} />
-			</div>
-			{current && (
-				<figcaption className={styles.controls}>
-					<p className={styles.caption} aria-live="polite">
+				{current && tooltip && (
+					<div ref={tipRef} className={styles.tip} aria-live="polite" style={{ visibility: 'hidden' }}>
 						<span className={styles.count}>
 							{step + 1}/{steps.length}
 						</span>
 						{current.caption}
-					</p>
+					</div>
+				)}
+			</div>
+			{current && (
+				<figcaption className={`${styles.controls} ${tooltip ? styles.controlsOnly : ''}`}>
+					{!tooltip && (
+						<p className={styles.caption} aria-live="polite">
+							<span className={styles.count}>
+								{step + 1}/{steps.length}
+							</span>
+							{current.caption}
+						</p>
+					)}
 					<div className={styles.buttons}>
 						<button
 							type="button"

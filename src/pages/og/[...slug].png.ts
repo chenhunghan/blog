@@ -10,6 +10,7 @@ import { type CollectionEntry, getCollection } from 'astro:content';
 import satori from 'satori';
 import sharp from 'sharp';
 import { SITE_TITLE } from '../../consts';
+import { formatDate, langOf } from '../../i18n';
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -33,6 +34,24 @@ const fonts = Promise.all([
 	{ name: 'Newsreader', data: newsreader, weight: 400 as const, style: 'italic' as const },
 	{ name: 'Departure Mono', data: departure, weight: 400 as const, style: 'normal' as const },
 ]);
+
+/** Titles with Chinese characters: a Noto Serif TC subset with just those characters (Google Fonts serves TrueType). */
+async function cjkFont(text: string) {
+	const isCjk = (c: string) => /[\u3000-\u9fff\uf900-\ufaff\uff00-\uffef]/.test(c);
+	const chars = [...new Set(text)].filter(isCjk).join('');
+	if (!chars) return [];
+	try {
+		const css = await (await fetch(`https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&text=${encodeURIComponent(chars)}`)).text();
+		const src = css.match(/src: url\(([^)]+)\)/)?.[1];
+		if (!src) return [];
+		const data = Buffer.from(await (await fetch(src)).arrayBuffer());
+		const sig = data.subarray(0, 4).toString('hex');
+		if (sig !== '00010000' && sig !== '4f54544f') return []; // TrueType / OpenType only
+		return [{ name: 'Noto Serif TC', data, weight: 500 as const, style: 'normal' as const }];
+	} catch {
+		return [];
+	}
+}
 
 const dataUri = (png: Buffer) => `data:image/png;base64,${png.toString('base64')}`;
 
@@ -67,8 +86,9 @@ const el = (type: string, style: Record<string, unknown>, children?: unknown, ex
 export const GET: APIRoute = async ({ props }) => {
 	const post = (props as { post: CollectionEntry<'blog'> }).post;
 	const art = await postArt(post);
-	const date = post.data.pubDate.toLocaleDateString('en-us', { year: 'numeric', month: 'short', day: 'numeric' });
+	const date = formatDate(post.data.pubDate, langOf(post));
 	const title = post.data.title;
+	const cjk = await cjkFont(title + date);
 	const titleSize = title.length > 48 ? 54 : title.length > 28 ? 62 : 72;
 
 	const right = art
@@ -116,8 +136,8 @@ export const GET: APIRoute = async ({ props }) => {
 		[
 			el('div', { display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1, height: HEIGHT - 2 * PAD }, [
 				el('div', { fontFamily: 'Inter', fontWeight: 700, fontSize: 56, letterSpacing: -1.5, color: '#1c1c1e', lineHeight: 1 }, SITE_TITLE),
-				el('div', { fontFamily: 'Newsreader', fontStyle: 'italic', fontSize: titleSize, lineHeight: 1.15, color: '#1c1c1e' }, title),
-				el('div', { fontFamily: 'Departure Mono', fontSize: 22, color: '#6e6e73' }, date),
+				el('div', { fontFamily: cjk.length ? 'Newsreader, Noto Serif TC' : 'Newsreader', fontStyle: 'italic', fontSize: titleSize, lineHeight: 1.15, color: '#1c1c1e' }, title),
+				el('div', { fontFamily: cjk.length ? 'Departure Mono, Noto Serif TC' : 'Departure Mono', fontSize: 22, color: '#6e6e73' }, date),
 			]),
 			right,
 		],
@@ -126,7 +146,7 @@ export const GET: APIRoute = async ({ props }) => {
 	const svg = await satori(card as never, {
 		width: WIDTH,
 		height: HEIGHT,
-		fonts: await fonts,
+		fonts: [...(await fonts), ...cjk],
 		loadAdditionalAsset: async (code, segment) => (code === 'emoji' ? loadEmoji(segment) : ''),
 	});
 	// Satori's SVG is vector: rasterise at 2× (density 144 = 2 × 72 dpi).
